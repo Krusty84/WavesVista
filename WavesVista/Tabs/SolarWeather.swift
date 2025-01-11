@@ -30,20 +30,6 @@ struct SolarWeatherTabContent: View {
 
 struct GeneralSolarData: View {
     let solarData: SolarData
-    
-    // Define three columns: Band Name, Day Propagation, Night Propagation
-    private let columns = [
-        GridItem(.flexible(minimum: 80)), // Band Name
-        GridItem(.flexible(minimum: 80)), // Day
-        GridItem(.flexible(minimum: 80))  // Night
-    ]
-    
-    // Determine whether it's currently day at the user's location
-    private var isDayTime: Bool {
-        let hour = Calendar.current.component(.hour, from: Date())
-        return (hour >= 6 && hour < 18)
-    }
-    
     var body: some View {
         VStack () {
             headerView
