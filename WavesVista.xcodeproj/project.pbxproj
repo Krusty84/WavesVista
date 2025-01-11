@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3D4441CA2D1857E300597173 /* GoodProperTabs in Frameworks */ = {isa = PBXBuildFile; productRef = 3D4441C92D1857E300597173 /* GoodProperTabs */; };
+		3DD7A9C42D328C5000E3AB2E /* GoodProperTabs in Frameworks */ = {isa = PBXBuildFile; productRef = 3DD7A9C32D328C5000E3AB2E /* GoodProperTabs */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3D4441CA2D1857E300597173 /* GoodProperTabs in Frameworks */,
+				3DD7A9C42D328C5000E3AB2E /* GoodProperTabs in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,6 +134,7 @@
 			name = WavesVista;
 			packageProductDependencies = (
 				3D4441C92D1857E300597173 /* GoodProperTabs */,
+				3DD7A9C32D328C5000E3AB2E /* GoodProperTabs */,
 			);
 			productName = WavesVista;
 			productReference = 3DB5F6F82D181F50002D00A4 /* WavesVista.app */;
@@ -216,7 +219,7 @@
 			mainGroup = 3DB5F6EF2D181F50002D00A4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				3D4441C82D1857E300597173 /* XCLocalSwiftPackageReference "../GoodProperTabs" */,
+				3DD7A9C22D328C5000E3AB2E /* XCRemoteSwiftPackageReference "GoodProperTabs" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3DB5F6F92D181F50002D00A4 /* Products */;
@@ -569,16 +572,25 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		3D4441C82D1857E300597173 /* XCLocalSwiftPackageReference "../GoodProperTabs" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../GoodProperTabs;
+/* Begin XCRemoteSwiftPackageReference section */
+		3DD7A9C22D328C5000E3AB2E /* XCRemoteSwiftPackageReference "GoodProperTabs" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Krusty84/GoodProperTabs.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		3D4441C92D1857E300597173 /* GoodProperTabs */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = GoodProperTabs;
+		};
+		3DD7A9C32D328C5000E3AB2E /* GoodProperTabs */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3DD7A9C22D328C5000E3AB2E /* XCRemoteSwiftPackageReference "GoodProperTabs" */;
 			productName = GoodProperTabs;
 		};
 /* End XCSwiftPackageProductDependency section */

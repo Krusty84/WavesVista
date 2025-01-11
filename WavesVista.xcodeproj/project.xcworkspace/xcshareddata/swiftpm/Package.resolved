@@ -1,0 +1,15 @@
+{
+  "originHash" : "b80442969525e777be90e8f727a357a9ec51387d7f844accb60d7029e15f58ff",
+  "pins" : [
+    {
+      "identity" : "goodpropertabs",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Krusty84/GoodProperTabs.git",
+      "state" : {
+        "revision" : "74d0398bf3648d9bc046d13df9427efcc06d91bd",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

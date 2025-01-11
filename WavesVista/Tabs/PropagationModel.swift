@@ -94,7 +94,7 @@ struct CalculatedCondition {
 }
 
 // Stores each <phenomenon> element inside <calculatedvhfconditions>
-struct CalculatedVhfCondition {
+struct CalculatedVhfCondition:Hashable {
     var phenomenonName: String  // from attribute: name="vhf-aurora" etc.
     var location: String        // from attribute: location="northern_hemi" etc.
     var condition: String       // text inside the <phenomenon> element

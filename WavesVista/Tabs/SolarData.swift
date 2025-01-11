@@ -10,7 +10,7 @@ import Foundation
 
 struct SolarDataTabContent: View {
     @StateObject private var viewModel = PropagationModel()
-
+    
     var body: some View {
         VStack() {
             if viewModel.isLoading {
@@ -64,28 +64,32 @@ struct GeneralSolarData: View {
                 statView(title: "Updated (GMT)", value: solarData.updated)
                 statView(title: "Updated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
             }
-//            Text("Solar-Terrestrial Data")
-//                .font(.title2)
-//                .fontWeight(.bold)
-            HStack(spacing: 0) {
-                statView(title: "Flux", value: solarData.solarflux)
-                statView(title: "A-Index", value: solarData.aindex)
-                statView(title: "K-Index", value: solarData.kindex)
-                statView(title: "X-Ray", value: solarData.xray)
-                statView(title: "Sunspots", value: solarData.sunspots)
-                
-                statView(title: "heliumline", value: solarData.heliumline)
-                statView(title: "protonflux", value: solarData.protonflux)
-                statView(title: "electonflux", value: solarData.electonflux)
-                statView(title: "aurora", value: solarData.aurora)
-                statView(title: "normalization", value: solarData.normalization)
-                statView(title: "latdegree", value: solarData.latdegree)
-                statView(title: "solarwind", value: solarData.solarwind)
-                statView(title: "magneticfield", value: solarData.magneticfield)
-                statView(title: "signalnoise", value: solarData.signalnoise)
-                statView(title: "fof2", value: solarData.fof2)
-                statView(title: "muffactor", value: solarData.muffactor)
-                statView(title: "muf", value: solarData.muf)
+            Grid(horizontalSpacing: 16, verticalSpacing: 16) {
+                GridRow {
+                    statView(title: "Flux", value: solarData.solarflux)
+                    statView(title: "A-Index", value: solarData.aindex)
+                    statView(title: "K-Index", value: solarData.kindex)
+                    statView(title: "X-Ray", value: solarData.xray)
+                    statView(title: "Sunspots", value: solarData.sunspots)
+                    statView(title: "Helium Line", value: solarData.heliumline)
+                }.padding(5)
+                GridRow {
+                    statView(title: "Solar Wind", value: solarData.solarwind)
+                    statView(title: "Proton Flux", value: solarData.protonflux)
+                    statView(title: "Electron Flux", value: solarData.electonflux)
+                    statView(title: "Aurora", value: solarData.aurora)
+                    statView(title: "Normaliztion", value: solarData.normalization)
+                    statView(title: "Aurora Latitude", value: solarData.latdegree)
+                }.padding(5)
+                GridRow{
+                    statView(title: "Mag (Bz)", value: solarData.magneticfield)
+                    statView(title: "Signal/Noise Level", value: solarData.signalnoise)
+                    statView(title: "foF2", value: solarData.fof2)
+                    statView(title: "MUF", value: solarData.muf)
+                    statView(title: "MUF Factor", value: solarData.muffactor)
+                    Spacer()
+                    Spacer()
+                }
             }
         }
     }
@@ -94,7 +98,7 @@ struct GeneralSolarData: View {
         VStack {
             Text(title)
                 .font(.headline)
-                //.foregroundColor(.secondary)
+            //.foregroundColor(.secondary)
             Text(value)
                 .font(.caption)
         }
@@ -161,7 +165,7 @@ struct GeneralSolarData: View {
                 // Apply border only if shouldHighlight is true
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.black, lineWidth: shouldHighlight ? 2 : 0)
-                                .padding(-2)
+                    .padding(-2)
             )
     }
     
@@ -178,18 +182,18 @@ struct GeneralSolarData: View {
     // MARK: - Helper for Colors
     private func colorForCondition(_ condition: String) -> Color {
         switch condition.lowercased() {
-        case "excellent": return .green
-        case "good":      return .mint
-        case "fair":      return .yellow
-        case "poor":      return .red
-        default:          return .gray
+            case "excellent": return .green
+            case "good":      return .mint
+            case "fair":      return .yellow
+            case "poor":      return .red
+            default:          return .gray
         }
     }
     
-
+    
 }
 
 
 //#Preview () {
-//    HFPropagationTabContent().frame(width: 500, height: 300)
+//    SolarDataTabContent().frame(width: 600, height: 300)
 //}

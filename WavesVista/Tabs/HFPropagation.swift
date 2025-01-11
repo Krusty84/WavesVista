@@ -15,7 +15,7 @@ struct HFPropagationTabContent: View {
             if viewModel.isLoading {
                 ProgressView("Loading...")
             } else if let solarData = viewModel.solarData {
-                BandConditionsView(solarData: solarData)
+                HFBandConditionsView(solarData: solarData)
             } else if let error = viewModel.errorMessage {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
@@ -27,7 +27,7 @@ struct HFPropagationTabContent: View {
     }
 }
 
-struct BandConditionsView: View {
+struct HFBandConditionsView: View {
     let solarData: SolarData
     
     // Define three columns: Band Name, Day Propagation, Night Propagation
@@ -62,7 +62,10 @@ struct BandConditionsView: View {
 //            Text("Solar-Terrestrial Data")
 //                .font(.title2)
 //                .fontWeight(.bold)
-            statView(title: "Updated", value: solarData.updated)
+            HStack(spacing: 10) {
+                statView(title: "Updated (GMT)", value: solarData.updated)
+                statView(title: "Updated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
+            }
 //            HStack(spacing: 0) {
 //                statView(title: "Updated", value: solarData.updated)
 //                statView(title: "Flux", value: solarData.solarflux)
