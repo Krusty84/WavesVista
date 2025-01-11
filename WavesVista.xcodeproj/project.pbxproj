@@ -39,7 +39,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Tabs/SolarWeather.swift,
 			);
 			target = 3DB5F6F72D181F50002D00A4 /* WavesVista */;
 		};

@@ -56,7 +56,7 @@ struct VHFBandConditionsView: View {
                     
                     // Rows for each phenomenon
                     ForEach(solarData.calculatedVhfConditions, id: \.self) { condition in
-                        Text(condition.phenomenonName)
+                        Text(transformPhenomenonName(condition.phenomenonName))
                             .font(.headline)
                         
                         Text(condition.location.replacingOccurrences(of: "_", with: " "))
@@ -89,4 +89,8 @@ struct VHFBandConditionsView: View {
             default:            return .blue
             }
         }
+    
+    private func transformPhenomenonName(_ name: String) -> String {
+           return name == "E-Skip" ? "Es(SpE)" : name
+       }
     }
