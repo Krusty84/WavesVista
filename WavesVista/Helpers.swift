@@ -34,3 +34,7 @@ func convertToLocalTime(dateString: String) -> String? {
     
     return nil // Return nil if the string couldn't be parsed
 }
+
+func openWebBrowser(browserUrl: URL) {
+    NSWorkspace.shared.open(browserUrl)
+}

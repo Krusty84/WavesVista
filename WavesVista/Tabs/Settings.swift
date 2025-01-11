@@ -8,68 +8,61 @@
 import SwiftUI
 
 struct SettingsView: View {
-    // Store URL in UserDefaults with key "solarWeatherApiUrl"
-    @AppStorage("solarWeatherApiUrl") private var solarWeatherApiUrl: String = "https://www.hamqsl.com/solarxml.php"
+    @AppStorage("solarWeatherApiUrl") private var solarWeatherApiUrl: String = SettingsManager.shared.solarWeatherApiUrl
+    @AppStorage("dxCluster8040url") private var dxCluster8040url: String = SettingsManager.shared.dxCluster8040url
+    @AppStorage("dxCluster3020url") private var dxCluster3020url: String = SettingsManager.shared.dxCluster3020url
+    @AppStorage("dxCluster1715url") private var dxCluster1715url: String = SettingsManager.shared.dxCluster1715url
+    @AppStorage("dxCluster1210url") private var dxCluster1210url: String = SettingsManager.shared.dxCluster1210url
     
-    @AppStorage("dxCluster8040url") private var dxCluster8040url: String = "http://www.dxsummit.fi/#/?include=3.5MHz,7MHz"
-    @AppStorage("dxCluster3020url") private var dxCluster3020url: String = "http://www.dxsummit.fi/#/?include=10MHz,14MHz"
-    @AppStorage("dxCluster1715url") private var dxCluster1715url: String = "http://www.dxsummit.fi/#/?include=18MHz,21MHz"
-    @AppStorage("dxCluster1210url") private var dxCluster1210url: String = "hhttp://www.dxsummit.fi/#/?include=24MHz,28MHz"
-    
-    
-    // A temporary state property to hold text field changes:
-    @State private var localSolarWeatherApiUrl: String = ""
-    @State private var localDxCluster8040url: String = ""
-    @State private var localDxCluster3020url: String = ""
-    @State private var localDxCluster1715url: String = ""
-    @State private var localDxCluster1210url: String = ""
-    // A state property to control whether editing is enabled:
     @State private var isEditingEnabled: Bool = false
-    
 
-var body: some View {
-     VStack(alignment: .leading, spacing: 16) {
-         
-         // 1) TextField and Toggle on the same line
-         HStack {
-             TextField("API URL", text: $localSolarWeatherApiUrl)
-                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                 .disabled(!isEditingEnabled) // Disable if toggle is off
-             // Checkbox (toggle) on the right
-             Toggle("Editable?", isOn: $isEditingEnabled)
-                 .toggleStyle(.checkbox)
-             //
-         }
-        
-         TextField("DxCluster 80-40", text: $localDxCluster8040url)
-         TextField("DxCluster 30-20", text: $localDxCluster3020url)
-         TextField("DxCluster 17-15", text: $localDxCluster1715url)
-         TextField("DxCluster 12-10", text: $localDxCluster1210url)
-         //
-         // 2) Save button on the bottom-right
-         HStack {
-             Spacer() // Pushes the button to the right
-             Button("Save") {
-                 // Assign the local text field value to the persisted value
-                 solarWeatherApiUrl = localSolarWeatherApiUrl
-                 dxCluster8040url = localDxCluster8040url
-                 dxCluster3020url  = localDxCluster3020url
-                 dxCluster1715url = localDxCluster1715url
-                 dxCluster1210url = localDxCluster1210url
-             }
-             .keyboardShortcut(.defaultAction)
-         }
-         
-     }
-     .padding()
-     .frame(width: 400, height: 120)
-     .onAppear {
-         // Load the initial value from UserDefaults
-         localSolarWeatherApiUrl = solarWeatherApiUrl
-         localDxCluster8040url = dxCluster8040url
-         localDxCluster3020url = dxCluster3020url
-         localDxCluster1715url = dxCluster1715url
-         localDxCluster1210url = dxCluster1210url
-     }
- }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                TextField("API URL", text: $solarWeatherApiUrl)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .disabled(!isEditingEnabled)
+                
+                Toggle("Editable?", isOn: $isEditingEnabled)
+                    .toggleStyle(.checkbox)
+            }
+            
+            let clusters = [
+                ("DxCluster 80-40", $dxCluster8040url),
+                ("DxCluster 30-20", $dxCluster3020url),
+                ("DxCluster 17-15", $dxCluster1715url),
+                ("DxCluster 12-10", $dxCluster1210url)
+            ]
+            
+            ForEach(clusters, id: \.0) { label, binding in
+                TextField(label, text: binding)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.vertical, 4)
+                    .disabled(!isEditingEnabled)
+            }
+            
+            HStack {
+                Spacer()
+                Button("Save") {
+                    // Sync changes back to SettingsManager
+                    SettingsManager.shared.solarWeatherApiUrl = solarWeatherApiUrl
+                    SettingsManager.shared.dxCluster8040url = dxCluster8040url
+                    SettingsManager.shared.dxCluster3020url = dxCluster3020url
+                    SettingsManager.shared.dxCluster1715url = dxCluster1715url
+                    SettingsManager.shared.dxCluster1210url = dxCluster1210url
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding()
+        .frame(width: 400, height: 400)
+        .onAppear {
+            // Sync SettingsManager to ensure consistency
+            solarWeatherApiUrl = SettingsManager.shared.solarWeatherApiUrl
+            dxCluster8040url = SettingsManager.shared.dxCluster8040url
+            dxCluster3020url = SettingsManager.shared.dxCluster3020url
+            dxCluster1715url = SettingsManager.shared.dxCluster1715url
+            dxCluster1210url = SettingsManager.shared.dxCluster1210url
+        }
+    }
 }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HFPropagationTabContent: View {
     @StateObject private var viewModel = PropagationModel()
-
+    @AppStorage("dxCluster1210url") private var dxCluster1210url: String = "DefaultValue"
     var body: some View {
         VStack() {
             if viewModel.isLoading {
@@ -37,12 +37,6 @@ struct HFBandConditionsView: View {
         GridItem(.flexible(minimum: 80))  // Night
     ]
     
-    // Determine whether it's currently day at the user's location
-    private var isDayTime: Bool {
-        let hour = Calendar.current.component(.hour, from: Date())
-        return (hour >= 6 && hour < 18)
-    }
-    
     var body: some View {
         VStack () {
             headerView
@@ -59,21 +53,21 @@ struct HFBandConditionsView: View {
     // MARK: - Header
     private var headerView: some View {
         VStack(spacing: 10) {
-//            Text("Solar-Terrestrial Data")
-//                .font(.title2)
-//                .fontWeight(.bold)
+            //            Text("Solar-Terrestrial Data")
+            //                .font(.title2)
+            //                .fontWeight(.bold)
             HStack(spacing: 10) {
                 statView(title: "Updated (GMT)", value: solarData.updated)
                 statView(title: "Updated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
             }
-//            HStack(spacing: 0) {
-//                statView(title: "Updated", value: solarData.updated)
-//                statView(title: "Flux", value: solarData.solarflux)
-//                statView(title: "A-Index", value: solarData.aindex)
-//                statView(title: "K-Index", value: solarData.kindex)
-//                statView(title: "X-Ray", value: solarData.xray)
-//                statView(title: "Sunspots", value: solarData.sunspots)
-//            }
+            //            HStack(spacing: 0) {
+            //                statView(title: "Updated", value: solarData.updated)
+            //                statView(title: "Flux", value: solarData.solarflux)
+            //                statView(title: "A-Index", value: solarData.aindex)
+            //                statView(title: "K-Index", value: solarData.kindex)
+            //                statView(title: "X-Ray", value: solarData.xray)
+            //                statView(title: "Sunspots", value: solarData.sunspots)
+            //            }
         }
     }
     
@@ -81,7 +75,7 @@ struct HFBandConditionsView: View {
         VStack {
             Text(title)
                 .font(.headline)
-                //.foregroundColor(.secondary)
+            //.foregroundColor(.secondary)
             Text(value)
                 .font(.caption)
         }
@@ -110,8 +104,25 @@ struct HFBandConditionsView: View {
                 let nightCondition = conditions.first(where: { $0.time.lowercased() == "night" })
                 
                 // Band name column
-                Text(band)
-                    .font(.headline)
+                //                Text(band)
+                //                    .font(.headline)
+                Button(action: {
+                    handleBandSelection(band: band)
+                }) {
+                    Text(band)
+                        .font(.headline)
+                        .foregroundColor(.blue) // Make it look clickable
+                        .underline() // Optional: Add underline for clarity
+                }
+                .buttonStyle(PlainButtonStyle()) // Remove default button styling
+                .onHover { isHovering in
+                    if isHovering {
+                        NSCursor.pointingHand.push() // Change to pointing hand
+                    } else {
+                        NSCursor.pop() // Restore the previous cursor
+                    }
+                }
+                .help("Go to DX Cluser")
                 
                 // Day propagation column
                 if let dc = dayCondition {
@@ -132,6 +143,29 @@ struct HFBandConditionsView: View {
         }
     }
     
+    private func handleBandSelection(band: String) {
+        switch band {
+        case "12m-10m":
+            openWebBrowser(browserUrl: URL(string: SettingsManager.shared.dxCluster1210url)!)
+            break
+        case "17m-15m":
+                openWebBrowser(browserUrl: URL(string: SettingsManager.shared.dxCluster1715url)!)
+            break
+        case "30m-20m":
+                openWebBrowser(browserUrl: URL(string: SettingsManager.shared.dxCluster3020url)!)
+            break
+        case "80m-40m":
+                openWebBrowser(browserUrl: URL(string: SettingsManager.shared.dxCluster8040url)!)
+            break
+        default:
+            break
+        }
+        
+        print(band)
+    }
+    
+    
+    
     // MARK: - Condition and Missing Tiles
     private func conditionTile(_ condition: CalculatedCondition, highlight: Bool) -> some View {
         let conditionValue = condition.condition.lowercased()
@@ -148,7 +182,7 @@ struct HFBandConditionsView: View {
                 // Apply border only if shouldHighlight is true
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.black, lineWidth: shouldHighlight ? 2 : 0)
-                                .padding(-2)
+                    .padding(-2)
             )
     }
     
@@ -165,12 +199,18 @@ struct HFBandConditionsView: View {
     // MARK: - Helper for Colors
     private func colorForCondition(_ condition: String) -> Color {
         switch condition.lowercased() {
-        case "excellent": return .green
-        case "good":      return .mint
-        case "fair":      return .yellow
-        case "poor":      return .red
-        default:          return .gray
+            case "excellent": return .green
+            case "good":      return .mint
+            case "fair":      return .yellow
+            case "poor":      return .red
+            default:          return .gray
         }
+    }
+    
+    // Determine whether it's currently day at the user's location
+    private var isDayTime: Bool {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return (hour >= 6 && hour < 18)
     }
 }
 
