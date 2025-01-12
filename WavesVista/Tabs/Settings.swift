@@ -17,7 +17,8 @@ struct SettingsView: View {
     @State private var isEditingEnabled: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        //VStack(alignment: .leading, spacing: 16) {
+        VStack{
             HStack {
                 TextField("API URL", text: $solarWeatherApiUrl)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -37,7 +38,7 @@ struct SettingsView: View {
             ForEach(clusters, id: \.0) { label, binding in
                 TextField(label, text: binding)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.vertical, 4)
+                    //.padding(.vertical, 4)
                     .disabled(!isEditingEnabled)
             }
             
@@ -54,8 +55,8 @@ struct SettingsView: View {
                 .buttonStyle(.borderedProminent)
             }
         }
-        .padding()
-        .frame(width: 400, height: 400)
+        //.padding()
+        .frame(width: 400)
         .onAppear {
             // Sync SettingsManager to ensure consistency
             solarWeatherApiUrl = SettingsManager.shared.solarWeatherApiUrl
