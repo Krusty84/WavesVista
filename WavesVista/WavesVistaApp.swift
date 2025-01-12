@@ -11,9 +11,10 @@ import SwiftUI
 struct WavesVistaApp: App {
      @Environment(\.openWindow) var openWindow
      var body: some Scene {
-         Window("Main Window", id: "mainWindow") {
-             MainWindow()
-         }
+         //hiding the window after first start application
+//         Window("Main Window", id: "mainWindow") {
+//             MainWindow()
+//         }
          MenuBarExtra {
              MainWindow()
          } label: {
@@ -23,7 +24,6 @@ struct WavesVistaApp: App {
                  $0.size.width = 18 / ratio
                  return $0
              }(NSImage(named: "AppIcon")!)
-
              Image(nsImage: image)
          }
          .menuBarExtraStyle(.window)
