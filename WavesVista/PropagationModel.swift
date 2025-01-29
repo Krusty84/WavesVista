@@ -73,14 +73,22 @@ class PropagationModel: ObservableObject {
             let parser = SolarDataParser(data: data)
             if let solarData = parser.parse() {
                 DispatchQueue.main.async {
+                    if let oldData = self.solarData, oldData != solarData {
+                        handleChangedData(oldData: oldData, newData: solarData)
+                    } else if self.solarData == nil {
+                        // 2) This is the first time data is being set
+                        //    Possibly treat it as "all new" if desired
+                    } else{
+                        NotificationManager.shared.postNotification(
+                            title: "WavesVista",
+                            body: "Propagation data refreshed at \(self.formatDate(self.lastRefreshDate))"
+                        )
+                    }
+                    
                     self.solarData = solarData
                     // Record successful fetch time
                     self.lastRefreshDate = Date()
                     
-                    NotificationManager.shared.postNotification(
-                                            title: "Solar Data Updated",
-                                            body: "Propagation data refreshed at \(self.formatDate(self.lastRefreshDate))"
-                                        )
                 }
             } else {
                 DispatchQueue.main.async {

@@ -80,14 +80,6 @@ struct HFBandConditionsView: View {
                 statView(title: "Forecast generated (GMT)", value: solarData.updated)
                 statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
             }
-            //            HStack(spacing: 0) {
-            //                statView(title: "Updated", value: solarData.updated)
-            //                statView(title: "Flux", value: solarData.solarflux)
-            //                statView(title: "A-Index", value: solarData.aindex)
-            //                statView(title: "K-Index", value: solarData.kindex)
-            //                statView(title: "X-Ray", value: solarData.xray)
-            //                statView(title: "Sunspots", value: solarData.sunspots)
-            //            }
         }
     }
     
