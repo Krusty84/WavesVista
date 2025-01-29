@@ -1,5 +1,5 @@
 //
-//  Propagation.swift
+//  HFPropagation.swift
 //  WavesVista
 //
 //  Created by Sedoykin Alexey on 22/12/2024.
@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct HFPropagationTabContent: View {
-    @StateObject private var viewModel = PropagationModel()
-    @AppStorage("dxCluster1210url") private var dxCluster1210url: String = "DefaultValue"
+    //@StateObject private var viewModel = PropagationModel()
+    @EnvironmentObject var viewModel: PropagationModel
     var body: some View {
         VStack() {
             if viewModel.isLoading {
@@ -20,11 +20,31 @@ struct HFPropagationTabContent: View {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
             }
+            
+            if let lastUpdateTime = viewModel.lastRefreshDate {
+                        Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
         }
-        .onAppear {
-            viewModel.fetchSolarData()
-        }
+//        .onAppear {
+//            viewModel.fetchSolarData()
+//        }
     }
+//    private func formatDate(_ date: Date?) -> String {
+//            guard let date = date else { return "No refresh yet" }
+//            let formatter = DateFormatter()
+//            formatter.dateStyle = .short
+//            formatter.timeStyle = .medium
+//            return formatter.string(from: date)
+//        }
+    private  let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateStyle = .short
+        df.timeStyle = .medium
+        return df
+    }()
 }
 
 struct HFBandConditionsView: View {

@@ -9,7 +9,8 @@ import SwiftUI
 import Foundation
 
 struct SolarWeatherTabContent: View {
-    @StateObject private var viewModel = PropagationModel()
+    //@StateObject private var viewModel = PropagationModel()
+    @EnvironmentObject var viewModel: PropagationModel
     
     var body: some View {
         VStack() {
@@ -21,11 +22,22 @@ struct SolarWeatherTabContent: View {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
             }
+            if let lastUpdateTime = viewModel.lastRefreshDate {
+                        Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
         }
-        .onAppear {
-            viewModel.fetchSolarData()
-        }
+//        .onAppear {
+//            viewModel.fetchSolarData()
+//        }
     }
+    private  let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateStyle = .short
+        df.timeStyle = .medium
+        return df
+    }()
 }
 
 struct GeneralSolarData: View {

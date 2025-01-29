@@ -13,7 +13,7 @@ struct SettingsView: View {
     @AppStorage("dxCluster3020url") private var dxCluster3020url: String = SettingsManager.shared.dxCluster3020url
     @AppStorage("dxCluster1715url") private var dxCluster1715url: String = SettingsManager.shared.dxCluster1715url
     @AppStorage("dxCluster1210url") private var dxCluster1210url: String = SettingsManager.shared.dxCluster1210url
-    
+    @AppStorage("autoRefreshInterval") private var autoRefreshInterval: Double = SettingsManager.shared.autoRefreshInterval
     @State private var isEditingEnabled: Bool = false
 
     var body: some View {
@@ -42,6 +42,12 @@ struct SettingsView: View {
                     .disabled(!isEditingEnabled)
             }
             
+            Stepper(value: $autoRefreshInterval, in: 60...86400, step: 60) {
+                            Text("Auto Refresh Interval (seconds): \(Int(autoRefreshInterval))")
+                        }
+                        .disabled(!isEditingEnabled)
+                        .padding(.top, 8)
+            
             HStack {
                 Spacer()
                 Button("Save") {
@@ -51,6 +57,7 @@ struct SettingsView: View {
                     SettingsManager.shared.dxCluster3020url = dxCluster3020url
                     SettingsManager.shared.dxCluster1715url = dxCluster1715url
                     SettingsManager.shared.dxCluster1210url = dxCluster1210url
+                    SettingsManager.shared.autoRefreshInterval = autoRefreshInterval
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -64,6 +71,7 @@ struct SettingsView: View {
             dxCluster3020url = SettingsManager.shared.dxCluster3020url
             dxCluster1715url = SettingsManager.shared.dxCluster1715url
             dxCluster1210url = SettingsManager.shared.dxCluster1210url
+            autoRefreshInterval = SettingsManager.shared.autoRefreshInterval
         }
     }
 }

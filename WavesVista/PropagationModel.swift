@@ -5,13 +5,40 @@
 //  Created by Sedoykin Alexey on 22/12/2024.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
+
 class PropagationModel: ObservableObject {
     @AppStorage("solarWeatherApiUrl") private var solarWeatherApiUrl: String = "https://www.hamqsl.com/solarxml.php"
+    
     @Published var solarData: SolarData?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    
+    // NEW: Store the last time we auto-refreshed
+    @Published var lastRefreshDate: Date? = nil
+    
+    private var autoRefreshCancellable: AnyCancellable?
+
+    // Call this once to start auto-refreshing
+    func startAutoRefresh(every seconds: TimeInterval = 20) {
+        // If there's already a timer, cancel it first
+        autoRefreshCancellable?.cancel()
+        
+        // Publish a timer event every `seconds`, on the main run loop, in the common modes
+        let timer = Timer.publish(every: seconds, on: .main, in: .common).autoconnect()
+        
+        // Each time the timer emits, we call `fetchSolarData()`
+        autoRefreshCancellable = timer.sink { [weak self] _ in
+            self?.fetchSolarData()
+        }
+    }
+
+    // Stop auto-refresh if needed
+    func stopAutoRefresh() {
+        autoRefreshCancellable?.cancel()
+        autoRefreshCancellable = nil
+    }
     
     func fetchSolarData() {
         guard let url = URL(string: solarWeatherApiUrl) else {
@@ -22,14 +49,15 @@ class PropagationModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        URLSession.shared.dataTask(with: url) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
             }
-            
             if let error = error {
                 DispatchQueue.main.async {
                     self.errorMessage = error.localizedDescription
+                    // You could record the time even on error if you wish:
+                    // self.lastRefreshDate = Date()
                 }
                 return
             }
@@ -37,23 +65,37 @@ class PropagationModel: ObservableObject {
             guard let data = data else {
                 DispatchQueue.main.async {
                     self.errorMessage = "No data received"
+                    // self.lastRefreshDate = Date()
                 }
                 return
             }
+            
             let parser = SolarDataParser(data: data)
             if let solarData = parser.parse() {
                 DispatchQueue.main.async {
                     self.solarData = solarData
+                    // Record successful fetch time
+                    self.lastRefreshDate = Date()
                 }
             } else {
                 DispatchQueue.main.async {
                     self.errorMessage = "Failed to parse XML data"
+                    // self.lastRefreshDate = Date()
                 }
             }
-        }
-        task.resume()
+        }.resume()
+    }
+    
+    init() {
+        let interval = SettingsManager.shared.autoRefreshInterval
+        //first data load
+        fetchSolarData()
+        //based on timer
+        startAutoRefresh(every: interval)
     }
 }
+
+
 
 struct SolarData {
     // Single-value fields

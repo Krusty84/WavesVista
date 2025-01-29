@@ -10,13 +10,10 @@ import SwiftUI
 @main
 struct WavesVistaApp: App {
      @Environment(\.openWindow) var openWindow
+     @StateObject private var propagationModel = PropagationModel()
      var body: some Scene {
-         //hiding the window after first start application
-//         Window("Main Window", id: "mainWindow") {
-//             MainWindow()
-//         }
          MenuBarExtra {
-             MainWindow()
+             MainWindow().environmentObject(propagationModel)
          } label: {
              let image: NSImage = {
                  let ratio = $0.size.height / $0.size.width

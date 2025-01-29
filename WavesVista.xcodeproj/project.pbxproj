@@ -28,6 +28,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3D3AAC482D491E06006E16E4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3DB5F6F82D181F50002D00A4 /* WavesVista.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WavesVista.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3DB5F7092D181F52002D00A4 /* WavesVistaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WavesVistaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -122,6 +135,7 @@
 				3DB5F6F42D181F50002D00A4 /* Sources */,
 				3DB5F6F52D181F50002D00A4 /* Frameworks */,
 				3DB5F6F62D181F50002D00A4 /* Resources */,
+				3D3AAC482D491E06006E16E4 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -407,6 +421,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};

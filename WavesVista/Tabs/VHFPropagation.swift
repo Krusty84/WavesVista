@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct VHFPropagationTabContent: View {
-    @StateObject private var viewModel = PropagationModel()
-
+    //@StateObject private var viewModel = PropagationModel()
+    @EnvironmentObject var viewModel: PropagationModel
     var body: some View {
         VStack() {
             if viewModel.isLoading {
@@ -20,11 +20,23 @@ struct VHFPropagationTabContent: View {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
             }
+            
+            if let lastUpdateTime = viewModel.lastRefreshDate {
+                        Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
         }
-        .onAppear {
-            viewModel.fetchSolarData()
-        }
+//        .onAppear {
+//            viewModel.fetchSolarData()
+//        }
     }
+    private  let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateStyle = .short
+        df.timeStyle = .medium
+        return df
+    }()
 }
 
 

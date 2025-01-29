@@ -39,4 +39,14 @@ class SettingsManager {
         get { defaults.string(forKey: "dxCluster1210url") ?? "http://www.dxsummit.fi/#/?include=24MHz,28MHz" }
         set { defaults.set(newValue, forKey: "dxCluster1210url") }
     }
+    
+    var autoRefreshInterval: Double {
+        get {
+            let storedValue = defaults.double(forKey: "autoRefreshInterval")
+            return storedValue == 0 ? 1800 : storedValue
+        }
+        set {
+            defaults.set(newValue, forKey: "autoRefreshInterval")
+        }
+    }
 }
