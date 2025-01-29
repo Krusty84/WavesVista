@@ -11,6 +11,12 @@ import SwiftUI
 struct WavesVistaApp: App {
      @Environment(\.openWindow) var openWindow
      @StateObject private var propagationModel = PropagationModel()
+    
+    init() {
+           // Ask for notification permission when the app starts
+           NotificationManager.shared.requestAuthorization()
+       }
+    
      var body: some Scene {
          MenuBarExtra {
              MainWindow().environmentObject(propagationModel)

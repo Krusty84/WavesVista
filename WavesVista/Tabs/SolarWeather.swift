@@ -58,8 +58,8 @@ struct GeneralSolarData: View {
     private var headerView: some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
-                statView(title: "Updated (GMT)", value: solarData.updated)
-                statView(title: "Updated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
+                statView(title: "Forecast generated (GMT)", value: solarData.updated)
+                statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
             }
             Grid(horizontalSpacing: 16, verticalSpacing: 16) {
                 GridRow {

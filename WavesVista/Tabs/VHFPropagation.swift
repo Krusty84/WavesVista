@@ -52,10 +52,10 @@ struct VHFBandConditionsView: View {
         
         var body: some View {
             VStack {
-                Text("VHF Propagation Conditions")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.bottom, 10)
+                HStack(spacing: 10) {
+                    statView(title: "Forecast generated (GMT)", value: solarData.updated)
+                    statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
+                }
                 
                 LazyVGrid(columns: columns, spacing: 16) {
                     // Header row
@@ -91,7 +91,6 @@ struct VHFBandConditionsView: View {
             .shadow(radius: 5)
             .frame(maxWidth: 600)
         }
-        
         // MARK: - Helper for Colors
         private func colorForCondition(_ condition: String) -> Color {
             switch condition.lowercased() {

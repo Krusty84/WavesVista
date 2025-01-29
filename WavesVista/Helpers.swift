@@ -20,6 +20,17 @@ func colorForCondition(_ condition: String) -> Color {
     }
 }
 
+ func statView(title: String, value: String) -> some View {
+    VStack {
+        Text(title)
+            .font(.headline)
+        //.foregroundColor(.secondary)
+        Text(value)
+            .font(.caption)
+    }
+    .frame(minWidth: 60)
+}
+
 func convertToLocalTime(dateString: String) -> String? {
     let formatter = DateFormatter()
     formatter.dateFormat = "dd MMM yyyy HHmm zzz" // Format of the input date string

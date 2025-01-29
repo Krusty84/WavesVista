@@ -77,8 +77,8 @@ struct HFBandConditionsView: View {
             //                .font(.title2)
             //                .fontWeight(.bold)
             HStack(spacing: 10) {
-                statView(title: "Updated (GMT)", value: solarData.updated)
-                statView(title: "Updated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
+                statView(title: "Forecast generated (GMT)", value: solarData.updated)
+                statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
             }
             //            HStack(spacing: 0) {
             //                statView(title: "Updated", value: solarData.updated)
@@ -91,16 +91,6 @@ struct HFBandConditionsView: View {
         }
     }
     
-    private func statView(title: String, value: String) -> some View {
-        VStack {
-            Text(title)
-                .font(.headline)
-            //.foregroundColor(.secondary)
-            Text(value)
-                .font(.caption)
-        }
-        .frame(minWidth: 60)
-    }
     
     // MARK: - Bands Grid
     private var bandsGrid: some View {

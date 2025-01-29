@@ -76,6 +76,11 @@ class PropagationModel: ObservableObject {
                     self.solarData = solarData
                     // Record successful fetch time
                     self.lastRefreshDate = Date()
+                    
+                    NotificationManager.shared.postNotification(
+                                            title: "Solar Data Updated",
+                                            body: "Propagation data refreshed at \(self.formatDate(self.lastRefreshDate))"
+                                        )
                 }
             } else {
                 DispatchQueue.main.async {
@@ -85,6 +90,14 @@ class PropagationModel: ObservableObject {
             }
         }.resume()
     }
+    
+    private func formatDate(_ date: Date?) -> String {
+         guard let date = date else { return "Unknown" }
+         let formatter = DateFormatter()
+         formatter.dateStyle = .short
+         formatter.timeStyle = .medium
+         return formatter.string(from: date)
+     }
     
     init() {
         let interval = SettingsManager.shared.autoRefreshInterval
