@@ -35,89 +35,70 @@ extension SolarData: Equatable {
 
 func handleChangedData(oldData: SolarData, newData: SolarData) {
     // MARK: 1. Compare HF conditions
-    // Create a dictionary from the old HF data, keyed by (bandName + time), with value = old condition
-    let oldHFDict = Dictionary(uniqueKeysWithValues: oldData.calculatedConditions.map {
-        let key = "\($0.bandName.lowercased())-\($0.time.lowercased())"
-        return (key, $0.condition)
-    })
+    let oldHFDict = Dictionary(
+        uniqueKeysWithValues: oldData.calculatedConditions.map {
+            // Key: "80m-40m (day)", Value: e.g. "Poor"
+            (bandTimeKey($0), $0.condition)
+        }
+    )
     
-    // Create a dictionary from the new HF data, keyed by the same
-    let newHFDict = Dictionary(uniqueKeysWithValues: newData.calculatedConditions.map {
-        let key = "\($0.bandName.lowercased())-\($0.time.lowercased())"
-        return (key, $0.condition)
-    })
+    let newHFDict = Dictionary(
+        uniqueKeysWithValues: newData.calculatedConditions.map {
+            (bandTimeKey($0), $0.condition)
+        }
+    )
     
-    // Check for changed HF conditions
     var changedHF: [String] = []
+    
+    // Only mention if oldCond != newCond for the same key
     for (key, newCond) in newHFDict {
-        let oldCond = oldHFDict[key]
-        // If oldCond exists but differs from newCond, record it
-        if let oldCond = oldCond, oldCond != newCond {
-            // e.g. "20m-30m (day) changed from Poor to Good"
-            changedHF.append("\(key) changed from \(oldCond) to \(newCond)")
-        }
-        // If oldCond == nil, that means it's new or didn't exist in old data
-        // you can decide how to handle "new" band/time
-    }
-    
-    // (Optional) Check for any HF keys that *disappeared* in the new data
-    // for example, if a band/time was removed from the feed
-    for (key, oldCond) in oldHFDict {
-        if newHFDict[key] == nil {
-            // That band/time no longer appears
-            changedHF.append("\(key) was removed (old condition \(oldCond))")
+        if let oldCond = oldHFDict[key], oldCond != newCond {
+            // e.g.: "Forecast for 80m-40m (day) changed"
+            changedHF.append("Forecast for \(key) changed")
         }
     }
     
-    
-    // MARK: 2. Compare VHF conditions
-    // Similar approach:
-    let oldVHFDict = Dictionary(uniqueKeysWithValues: oldData.calculatedVhfConditions.map {
-        let key = "\($0.phenomenonName.lowercased())-\($0.location.lowercased())"
-        return (key, $0.condition)
-    })
-    
-    let newVHFDict = Dictionary(uniqueKeysWithValues: newData.calculatedVhfConditions.map {
-        let key = "\($0.phenomenonName.lowercased())-\($0.location.lowercased())"
-        return (key, $0.condition)
-    })
+    // MARK: 2. Compare VHF conditions if you want the same style
+    // (Remove if you only care about HF)
+    let oldVHFDict = Dictionary(
+        uniqueKeysWithValues: oldData.calculatedVhfConditions.map {
+            (vhfKey($0), $0.condition)
+        }
+    )
+    let newVHFDict = Dictionary(
+        uniqueKeysWithValues: newData.calculatedVhfConditions.map {
+            (vhfKey($0), $0.condition)
+        }
+    )
     
     var changedVHF: [String] = []
     for (key, newCond) in newVHFDict {
-        let oldCond = oldVHFDict[key]
-        if let oldCond = oldCond, oldCond != newCond {
-            changedVHF.append("\(key) changed from \(oldCond) to \(newCond)")
-        }
-        // If oldCond == nil, we could treat as "new phenomenon"
-    }
-    
-    // Check for removed phenomenon
-    for (key, oldCond) in oldVHFDict {
-        if newVHFDict[key] == nil {
-            changedVHF.append("\(key) was removed (old condition \(oldCond))")
+        if let oldCond = oldVHFDict[key], oldCond != newCond {
+            changedVHF.append("Forecast for \(key) changed")
         }
     }
     
+    // MARK: 3. Notify if changes exist
+    let allChanges = changedHF + changedVHF
+    guard !allChanges.isEmpty else { return }
     
-    // MARK: 3. Log or notify the changes
-    if !changedHF.isEmpty {
-        print("HF changes found:")
-        changedHF.forEach { print(" - \($0)") }
-    }
-    if !changedVHF.isEmpty {
-        print("VHF changes found:")
-        changedVHF.forEach { print(" - \($0)") }
-    }
+    let message = allChanges.joined(separator: "\n")
     
-    // If you want a single notification summarizing changes:
-    let changesCount = changedHF.count + changedVHF.count
-    if changesCount > 0 {
-        let summary = (changedHF + changedVHF).joined(separator: "\n")
-        // e.g. Post macOS system notification
-        NotificationManager.shared.postNotification(
-            title: "Propagation Data Changed (\(changesCount) updates)",
-            body: summary
-        )
-    }
+    // Post a single macOS notification with the summarized changes
+    NotificationManager.shared.postNotification(
+        title: "Propagation Data Changed",
+        body: message
+    )
 }
+
+/// Helper to create a short key like "80m-40m (day)"
+private func bandTimeKey(_ condition: CalculatedCondition) -> String {
+    "\(condition.bandName) (\(condition.time.lowercased()))"
+}
+
+/// Helper to create a short key like "E-Skip (northern_hemi)"
+private func vhfKey(_ condition: CalculatedVhfCondition) -> String {
+    "\(condition.phenomenonName) (\(condition.location))"
+}
+
 

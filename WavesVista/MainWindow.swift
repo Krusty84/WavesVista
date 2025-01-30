@@ -17,6 +17,10 @@ struct MainWindow: View {
                 (title: "Solar Weather", icon: "SunIcon", view: AnyView(SolarWeatherTabContent().environmentObject(propagationModel))),
                 (title: "Settings", icon: "system:gear", view: AnyView(SettingsView())),
                 (title: "About", icon: "system:info", view: AnyView(AboutView()))
-                ])
+                ]).onAppear {
+                    // Reset the "hasChanges" so next time it shows normal icon
+                    propagationModel.forecastChanged = false
+                }
     }
 }
+

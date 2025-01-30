@@ -14,7 +14,7 @@ class PropagationModel: ObservableObject {
     @Published var solarData: SolarData?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
+    @Published var forecastChanged: Bool = false
     // NEW: Store the last time we auto-refreshed
     @Published var lastRefreshDate: Date? = nil
     
@@ -74,6 +74,7 @@ class PropagationModel: ObservableObject {
             if let solarData = parser.parse() {
                 DispatchQueue.main.async {
                     if let oldData = self.solarData, oldData != solarData {
+                        self.forecastChanged = true;
                         handleChangedData(oldData: oldData, newData: solarData)
                     } else if self.solarData == nil {
                         // 2) This is the first time data is being set
