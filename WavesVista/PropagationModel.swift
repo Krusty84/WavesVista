@@ -28,11 +28,8 @@ class PropagationModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var forecastChanged: Bool = false
-    // NEW: Store the last time we auto-refreshed
     @Published var lastRefreshDate: Date? = nil
-    /// (NEW) The set of band/time combos the user wants to track
     @Published var trackedBandTimes: Set<BandTime> = []
-    /// Tracks which VHF phenomenon + location combos the user wants to watch
     @Published var trackedVhfKeys: Set<VhfKey> = []
     private var autoRefreshCancellable: AnyCancellable?
 
