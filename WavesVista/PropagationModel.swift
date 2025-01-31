@@ -196,10 +196,11 @@ class PropagationModel: ObservableObject {
     
     init() {
         let interval = SettingsManager.shared.autoRefreshInterval
+        let intervalInSeconds = interval * 60
         //first data load
         fetchSolarData()
         //based on timer
-        startAutoRefresh(every: interval)
+        startAutoRefresh(every: intervalInSeconds)
     }
 }
 

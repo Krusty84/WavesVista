@@ -29,10 +29,10 @@ struct SettingsView: View {
             // Content under the tabs
             switch selectedTab {
             case 0:
-                Stepper(value: $autoRefreshInterval, in: 60...86400, step: 60) {
-                    Text("Auto Refresh Interval (seconds): \(Int(autoRefreshInterval))")
-                        .disabled(!isEditingEnabled)
-                }
+                Stepper(value: $autoRefreshInterval, in: 10...1440, step: 1) {
+                        Text("Auto Refresh Interval (minutes): \(Int(autoRefreshInterval))")
+                            .disabled(!isEditingEnabled)
+                    }
                 .disabled(!isEditingEnabled)
                 .padding(.top, 8)
                 

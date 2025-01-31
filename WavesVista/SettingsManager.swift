@@ -43,7 +43,7 @@ class SettingsManager {
     var autoRefreshInterval: Double {
         get {
             let storedValue = defaults.double(forKey: "autoRefreshInterval")
-            return storedValue == 0 ? 1800 : storedValue
+            return storedValue == 0 ? 30 : storedValue // Default to 30 minutess
         }
         set {
             defaults.set(newValue, forKey: "autoRefreshInterval")
