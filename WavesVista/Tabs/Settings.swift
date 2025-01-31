@@ -15,41 +15,59 @@ struct SettingsView: View {
     @AppStorage("dxCluster1210url") private var dxCluster1210url: String = SettingsManager.shared.dxCluster1210url
     @AppStorage("autoRefreshInterval") private var autoRefreshInterval: Double = SettingsManager.shared.autoRefreshInterval
     @State private var isEditingEnabled: Bool = false
-
+    @State private var selectedTab: Int = 0
     var body: some View {
-        //VStack(alignment: .leading, spacing: 16) {
-        VStack{
-            HStack {
-                TextField("API URL", text: $solarWeatherApiUrl)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .disabled(!isEditingEnabled)
+        VStack {
+            // Tabs at the top
+            Picker("", selection: $selectedTab) {
+                Text("General").tag(0)
+                Text("End-points").tag(1)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(.horizontal)
+            
+            // Content under the tabs
+            switch selectedTab {
+            case 0:
+                Stepper(value: $autoRefreshInterval, in: 60...86400, step: 60) {
+                    Text("Auto Refresh Interval (seconds): \(Int(autoRefreshInterval))")
+                        .disabled(!isEditingEnabled)
+                }
+                .disabled(!isEditingEnabled)
+                .padding(.top, 8)
                 
+            case 1:
+                HStack {
+                    TextField("Solar Weather/Propagatin Provider", text: $solarWeatherApiUrl)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .disabled(!isEditingEnabled)
+                }
+                
+                let clusters = [
+                    ("DxCluster 80-40", $dxCluster8040url),
+                    ("DxCluster 30-20", $dxCluster3020url),
+                    ("DxCluster 17-15", $dxCluster1715url),
+                    ("DxCluster 12-10", $dxCluster1210url)
+                ]
+                ForEach(clusters, id: \.0) { label, binding in
+                    TextField(label, text: binding)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .disabled(!isEditingEnabled)
+                }
+                
+            default:
+                EmptyView()
+            }
+            
+            Spacer() // Push the content below the tabs
+            
+            // Toggle and Save button in the same line
+            HStack {
                 Toggle("Editable?", isOn: $isEditingEnabled)
                     .toggleStyle(.checkbox)
-            }
-            
-            let clusters = [
-                ("DxCluster 80-40", $dxCluster8040url),
-                ("DxCluster 30-20", $dxCluster3020url),
-                ("DxCluster 17-15", $dxCluster1715url),
-                ("DxCluster 12-10", $dxCluster1210url)
-            ]
-            
-            ForEach(clusters, id: \.0) { label, binding in
-                TextField(label, text: binding)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    //.padding(.vertical, 4)
-                    .disabled(!isEditingEnabled)
-            }
-            
-            Stepper(value: $autoRefreshInterval, in: 60...86400, step: 60) {
-                            Text("Auto Refresh Interval (seconds): \(Int(autoRefreshInterval))")
-                        }
-                        .disabled(!isEditingEnabled)
-                        .padding(.top, 8)
-            
-            HStack {
-                Spacer()
+                
+                Spacer() // Push the Save button to the right
+                
                 Button("Save") {
                     // Sync changes back to SettingsManager
                     SettingsManager.shared.solarWeatherApiUrl = solarWeatherApiUrl
@@ -61,8 +79,9 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
+            .padding(.horizontal) // Add some horizontal padding
         }
-        //.padding()
+        .padding(.vertical, 16) // Add padding to the top and bottom
         .frame(width: 400)
         .onAppear {
             // Sync SettingsManager to ensure consistency
