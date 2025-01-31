@@ -8,6 +8,19 @@
 import Combine
 import SwiftUI
 
+
+/// Identifies one HF condition slot like "80m-40m (day)"
+struct BandTime: Hashable, Equatable {
+    let bandName: String
+    let time: String
+}
+
+/// Identifies a VHF phenomenon + location
+struct VhfKey: Hashable, Equatable {
+    let phenomenonName: String
+    let location: String
+}
+
 class PropagationModel: ObservableObject {
     @AppStorage("solarWeatherApiUrl") private var solarWeatherApiUrl: String = "https://www.hamqsl.com/solarxml.php"
     
@@ -17,7 +30,10 @@ class PropagationModel: ObservableObject {
     @Published var forecastChanged: Bool = false
     // NEW: Store the last time we auto-refreshed
     @Published var lastRefreshDate: Date? = nil
-    
+    /// (NEW) The set of band/time combos the user wants to track
+    @Published var trackedBandTimes: Set<BandTime> = []
+    /// Tracks which VHF phenomenon + location combos the user wants to watch
+    @Published var trackedVhfKeys: Set<VhfKey> = []
     private var autoRefreshCancellable: AnyCancellable?
 
     // Call this once to start auto-refreshing
@@ -75,7 +91,7 @@ class PropagationModel: ObservableObject {
                 DispatchQueue.main.async {
                     if let oldData = self.solarData, oldData != solarData {
                         self.forecastChanged = true;
-                        handleChangedData(oldData: oldData, newData: solarData)
+                        self.handleChangedData(oldData: oldData, newData: solarData)
                     } else if self.solarData == nil {
                         // 2) This is the first time data is being set
                         //    Possibly treat it as "all new" if desired
@@ -84,6 +100,10 @@ class PropagationModel: ObservableObject {
                             title: "WavesVista",
                             body: "Propagation data refreshed at \(self.formatDate(self.lastRefreshDate))"
                         )
+                        /*
+                         title: "Propagation Data Changed",
+                         body: message
+                         */
                     }
                     
                     self.solarData = solarData
@@ -108,6 +128,73 @@ class PropagationModel: ObservableObject {
          return formatter.string(from: date)
      }
     
+    private func handleChangedData(oldData: SolarData, newData: SolarData) {
+        let oldHF = Dictionary(uniqueKeysWithValues:
+                  oldData.calculatedConditions.map {
+                      (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
+                  }
+              )
+              let newHF = Dictionary(uniqueKeysWithValues:
+                  newData.calculatedConditions.map {
+                      (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
+                  }
+              )
+              
+              var changedHFItems: [BandTime] = []
+              for tracked in self.trackedBandTimes {
+                  let oldCond = oldHF[tracked]
+                  let newCond = newHF[tracked]
+                  if let oldCond = oldCond, let newCond = newCond, oldCond != newCond {
+                      changedHFItems.append(tracked)
+                  }
+              }
+              
+              // MARK: - Compare VHF (trackedVhfKeys)
+              let oldVHF = Dictionary(uniqueKeysWithValues:
+                  oldData.calculatedVhfConditions.map {
+                      (VhfKey(phenomenonName: $0.phenomenonName, location: $0.location), $0.condition)
+                  }
+              )
+              let newVHF = Dictionary(uniqueKeysWithValues:
+                  newData.calculatedVhfConditions.map {
+                      (VhfKey(phenomenonName: $0.phenomenonName, location: $0.location), $0.condition)
+                  }
+              )
+              
+              var changedVhfItems: [VhfKey] = []
+              for tracked in self.trackedVhfKeys {
+                  let oldCond = oldVHF[tracked]
+                  let newCond = newVHF[tracked]
+                  if let oldCond = oldCond, let newCond = newCond, oldCond != newCond {
+                      changedVhfItems.append(tracked)
+                  }
+              }
+              
+              // Combine changes
+              let totalChanges = changedHFItems.count + changedVhfItems.count
+              guard totalChanges > 0 else { return }
+              
+              // Build a summary
+              var lines: [String] = []
+              
+              for item in changedHFItems {
+                  lines.append("Forecast for \(item.bandName) (\(item.time)) changed")
+              }
+              
+              for item in changedVhfItems {
+                  lines.append("Forecast for \(item.phenomenonName) (\(item.location)) changed")
+              }
+              
+              let message = lines.joined(separator: "\n")
+              
+              // Show a single macOS notification summarizing changes
+              NotificationManager.shared.postNotification(
+                  title: "Tracked Forecast Changed",
+                  body: message
+              )
+          }
+      
+    
     init() {
         let interval = SettingsManager.shared.autoRefreshInterval
         //first data load
@@ -115,6 +202,8 @@ class PropagationModel: ObservableObject {
         //based on timer
         startAutoRefresh(every: interval)
     }
+    
+    
 }
 
 
@@ -372,3 +461,5 @@ class SolarDataParser: NSObject, XMLParserDelegate {
         print("XML Parser error: \(parseError)")
     }
 }
+
+
