@@ -54,17 +54,3 @@ struct WavesVistaApp: App {
  #Preview (traits: .fixedLayout(width: 500, height:100)) {
      MainWindow()
  }
-
- 
-//             Button("Do Something") {
-//                 openWindow(id: "mainWindow")
-//                 NSLog("Clicked")
-//             }
-//             Divider()
-//             Button("BlahBlah") {
-//                 NSLog("BlahBlahBlah")
-//             }
-//             Divider()
-//             Button("Quit") {
-//                 NSApplication.shared.terminate(nil)
-//             }

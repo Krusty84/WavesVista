@@ -89,26 +89,35 @@ class PropagationModel: ObservableObject {
             let parser = SolarDataParser(data: data)
             if let solarData = parser.parse() {
                 DispatchQueue.main.async {
-                    if let oldData = self.solarData, oldData != solarData {
-                        self.forecastChanged = true;
-                        self.handleChangedData(oldData: oldData, newData: solarData)
-                    } else if self.solarData == nil {
-                        // 2) This is the first time data is being set
-                        //    Possibly treat it as "all new" if desired
-                    } else{
-                        NotificationManager.shared.postNotification(
-                            title: "WavesVista",
-                            body: "Propagation data refreshed at \(self.formatDate(self.lastRefreshDate))"
-                        )
-                        /*
-                         title: "Propagation Data Changed",
-                         body: message
-                         */
-                    }
-                    
-                    self.solarData = solarData
-                    // Record successful fetch time
-                    self.lastRefreshDate = Date()
+                        if let oldData = self.solarData, oldData != solarData {
+                            self.forecastChanged = true;
+                            // Overall data changed
+                            let changesCount = self.handleChangedData(oldData: oldData, newData: solarData)
+                            if (changesCount == 0) {
+                                // No tracked changes found, but the data overall changed.
+                                // => post a simple "refreshed" notification
+                                NotificationManager.shared.postNotification(
+                                    title: "WavesVista",
+                                    body: "Propagation data refreshed at:\n\(self.formatDate(Date())) \nSome conditions has been changed"
+                                )
+                            }
+                        } else if self.solarData == nil {
+                            // First time data is set (if you want a notification here, do it):
+//                            NotificationManager.shared.postNotification(
+//                                title: "WavesVista",
+//                                body: "Propagation data fetched for the first time"
+//                            )
+                        } else {
+                            // No overall changes; data is identical to old (so do we want a "refreshed" anyway?)
+                            NotificationManager.shared.postNotification(
+                                title: "WavesVista",
+                                body: "Propagation data refreshed at: \n\(self.formatDate(Date()))"
+                            )
+                        }
+                        
+                        // Always update solarData & lastRefreshDate
+                        self.solarData = solarData
+                        self.lastRefreshDate = Date()
                     
                 }
             } else {
@@ -128,72 +137,65 @@ class PropagationModel: ObservableObject {
          return formatter.string(from: date)
      }
     
-    private func handleChangedData(oldData: SolarData, newData: SolarData) {
-        let oldHF = Dictionary(uniqueKeysWithValues:
-                  oldData.calculatedConditions.map {
-                      (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
-                  }
-              )
-              let newHF = Dictionary(uniqueKeysWithValues:
-                  newData.calculatedConditions.map {
-                      (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
-                  }
-              )
-              
-              var changedHFItems: [BandTime] = []
-              for tracked in self.trackedBandTimes {
-                  let oldCond = oldHF[tracked]
-                  let newCond = newHF[tracked]
-                  if let oldCond = oldCond, let newCond = newCond, oldCond != newCond {
-                      changedHFItems.append(tracked)
-                  }
-              }
-              
-              // MARK: - Compare VHF (trackedVhfKeys)
-              let oldVHF = Dictionary(uniqueKeysWithValues:
-                  oldData.calculatedVhfConditions.map {
-                      (VhfKey(phenomenonName: $0.phenomenonName, location: $0.location), $0.condition)
-                  }
-              )
-              let newVHF = Dictionary(uniqueKeysWithValues:
-                  newData.calculatedVhfConditions.map {
-                      (VhfKey(phenomenonName: $0.phenomenonName, location: $0.location), $0.condition)
-                  }
-              )
-              
-              var changedVhfItems: [VhfKey] = []
-              for tracked in self.trackedVhfKeys {
-                  let oldCond = oldVHF[tracked]
-                  let newCond = newVHF[tracked]
-                  if let oldCond = oldCond, let newCond = newCond, oldCond != newCond {
-                      changedVhfItems.append(tracked)
-                  }
-              }
-              
-              // Combine changes
-              let totalChanges = changedHFItems.count + changedVhfItems.count
-              guard totalChanges > 0 else { return }
-              
-              // Build a summary
-              var lines: [String] = []
-              
-              for item in changedHFItems {
-                  lines.append("Forecast for \(item.bandName) (\(item.time)) changed")
-              }
-              
-              for item in changedVhfItems {
-                  lines.append("Forecast for \(item.phenomenonName) (\(item.location)) changed")
-              }
-              
-              let message = lines.joined(separator: "\n")
-              
-              // Show a single macOS notification summarizing changes
-              NotificationManager.shared.postNotification(
-                  title: "Tracked Forecast Changed",
-                  body: message
-              )
-          }
-      
+    private func handleChangedData(oldData: SolarData, newData: SolarData) -> Int  {
+            // --- HF comparison ---
+            let oldHF = Dictionary(uniqueKeysWithValues:
+                                    oldData.calculatedConditions.map {
+                (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
+            }
+            )
+            let newHF = Dictionary(uniqueKeysWithValues:
+                                    newData.calculatedConditions.map {
+                (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
+            }
+            )
+            var changedHFItems: [BandTime] = []
+            
+            for tracked in self.trackedBandTimes {
+                let oldCond = oldHF[tracked]
+                let newCond = newHF[tracked]
+                if let oldCond = oldCond, let newCond = newCond, oldCond != newCond {
+                    changedHFItems.append(tracked)
+                }
+            }
+            
+            // --- VHF comparison ---
+            let oldVHF = Dictionary(uniqueKeysWithValues:
+                                        oldData.calculatedVhfConditions.map { (VhfKey(phenomenonName: $0.phenomenonName, location: $0.location), $0.condition) }
+            )
+            let newVHF = Dictionary(uniqueKeysWithValues:
+                                        newData.calculatedVhfConditions.map { (VhfKey(phenomenonName: $0.phenomenonName, location: $0.location), $0.condition) }
+            )
+            var changedVhfItems: [VhfKey] = []
+            
+            for tracked in self.trackedVhfKeys {
+                let oldCond = oldVHF[tracked]
+                let newCond = newVHF[tracked]
+                if let oldCond = oldCond, let newCond = newCond, oldCond != newCond {
+                    changedVhfItems.append(tracked)
+                }
+            }
+            
+            let totalChanges = changedHFItems.count + changedVhfItems.count
+            guard totalChanges > 0 else { return 0 }
+            
+            // Build a single notification listing all changed items
+            var lines: [String] = []
+            for item in changedHFItems {
+                lines.append("Forecast for \(item.bandName) (\(item.time)) changed")
+            }
+            for item in changedVhfItems {
+                lines.append("Forecast for \(item.phenomenonName) (\(item.location)) changed")
+            }
+            
+            let message = lines.joined(separator: "\n")
+            NotificationManager.shared.postNotification(
+                title: "WavesVista",
+                body: message
+            )
+            
+            return totalChanges
+        }
     
     init() {
         let interval = SettingsManager.shared.autoRefreshInterval
@@ -202,8 +204,6 @@ class PropagationModel: ObservableObject {
         //based on timer
         startAutoRefresh(every: interval)
     }
-    
-    
 }
 
 
