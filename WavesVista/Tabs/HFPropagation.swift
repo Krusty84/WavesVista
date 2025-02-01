@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct HFPropagationTabContent: View {
-    //@StateObject private var viewModel = PropagationModel()
     @EnvironmentObject var viewModel: PropagationModel
+    //
+    let minValue = 60.0
+    let maxValue = 250.0
+    let gradient = Gradient(colors: [.red, .yellow, .orange, .green])
+    //
     var body: some View {
         VStack() {
             if viewModel.isLoading {
@@ -21,16 +25,46 @@ struct HFPropagationTabContent: View {
                     .foregroundColor(.red)
             }
             
+            let solarFluxValue = Double(viewModel.solarData?.solarflux ?? "") ?? 0.0
+            Gauge(value: solarFluxValue, in: minValue...maxValue) {
+            } currentValueLabel: {
+                Text("\(Int(solarFluxValue))")
+                    .foregroundColor(Color.red)
+            } minimumValueLabel: {
+                Text("\(Int(minValue))")
+                    .foregroundColor(Color.red)
+            } maximumValueLabel: {
+                Text("\(Int(maxValue))")
+                    .foregroundColor(Color.green)
+            }
+            .gaugeStyle(AccessoryLinearGaugeStyle())
+            .tint(gradient)
+            //
+            Gauge(value: solarFluxValue, in: minValue...maxValue) {
+            } currentValueLabel: {
+                Text("\(Int(solarFluxValue))")
+                    .foregroundColor(Color.red)
+            } minimumValueLabel: {
+                Text("\(Int(minValue))")
+                    .foregroundColor(Color.red)
+            } maximumValueLabel: {
+                Text("\(Int(maxValue))")
+                    .foregroundColor(Color.green)
+            }
+            .gaugeStyle(AccessoryLinearGaugeStyle())
+            .tint(gradient)
+            
+            
             if let lastUpdateTime = viewModel.lastRefreshDate {
-                        Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
+                Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
         }
-//        .onAppear {
-//            viewModel.fetchSolarData()
-//        }
+        //        .onAppear {
+        //            viewModel.fetchSolarData()
+        //        }
     }
     private  let dateFormatter: DateFormatter = {
         let df = DateFormatter()
@@ -54,10 +88,10 @@ struct HFBandConditionsView: View {
         VStack {
             headerView
             bandsGrid
-                .padding(10)
-            Spacer()
+                .padding(20)
+            //Spacer()
         }
-        .padding()
+        //.padding()
         .cornerRadius(12)
         .shadow(radius: 5)
         .frame(maxWidth: 600)
@@ -152,12 +186,12 @@ struct HFBandConditionsView: View {
                 break
         }
     }
-        
+    
     private func conditionTile(
         _ condition: CalculatedCondition,
         highlight: Bool,
         isSelected: Bool,
-                    toggleHFTracking: @escaping () -> Void
+        toggleHFTracking: @escaping () -> Void
     ) -> some View {
         let conditionValue = condition.condition.lowercased()
         let shouldHighlight = highlight && (conditionValue == "good" || conditionValue == "fair")
@@ -225,7 +259,7 @@ struct HFBandConditionsView: View {
         .frame(minWidth: 60)
     }
 }
-
+//
 //#Preview () {
 //    HFPropagationTabContent().frame(width: 500, height: 300)
 //}

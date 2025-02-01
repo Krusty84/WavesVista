@@ -11,7 +11,6 @@ import Foundation
 struct SolarWeatherTabContent: View {
     //@StateObject private var viewModel = PropagationModel()
     @EnvironmentObject var viewModel: PropagationModel
-    
     var body: some View {
         VStack() {
             if viewModel.isLoading {
@@ -41,6 +40,11 @@ struct SolarWeatherTabContent: View {
 }
 
 struct GeneralSolarData: View {
+    @State private var current = 67.0
+        @State private var minValue = 50.0
+        @State private var maxValue = 170.0
+        let gradient = Gradient(colors: [.green, .yellow, .orange, .red])
+    
     let solarData: SolarData
     var body: some View {
         VStack () {
@@ -61,6 +65,7 @@ struct GeneralSolarData: View {
                 statView(title: "Forecast generated (GMT)", value: solarData.updated)
                 statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
             }
+        
             Grid(horizontalSpacing: 16, verticalSpacing: 16) {
                 GridRow {
                     statView(title: "Flux", value: solarData.solarflux)
