@@ -10,7 +10,7 @@ import SwiftUI
 
 
 /// Identifies one HF condition slot like "80m-40m (day)"
-struct BandTime: Hashable, Equatable {
+struct HfKey: Hashable, Equatable {
     let bandName: String
     let time: String
 }
@@ -29,7 +29,7 @@ class PropagationModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var forecastChanged: Bool = false
     @Published var lastRefreshDate: Date? = nil
-    @Published var trackedBandTimes: Set<BandTime> = []
+    @Published var trackedBandTimes: Set<HfKey> = []
     @Published var trackedVhfKeys: Set<VhfKey> = []
     private var autoRefreshCancellable: AnyCancellable?
 
@@ -138,15 +138,15 @@ class PropagationModel: ObservableObject {
             // --- HF comparison ---
             let oldHF = Dictionary(uniqueKeysWithValues:
                                     oldData.calculatedConditions.map {
-                (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
+                (HfKey(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
             }
             )
             let newHF = Dictionary(uniqueKeysWithValues:
                                     newData.calculatedConditions.map {
-                (BandTime(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
+                (HfKey(bandName: $0.bandName, time: $0.time.lowercased()), $0.condition)
             }
             )
-            var changedHFItems: [BandTime] = []
+            var changedHFItems: [HfKey] = []
             
             for tracked in self.trackedBandTimes {
                 let oldCond = oldHF[tracked]

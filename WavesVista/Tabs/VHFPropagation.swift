@@ -10,18 +10,17 @@ import SwiftUI
 struct VHFPropagationTabContent: View {
     @EnvironmentObject var viewModel: PropagationModel
     var body: some View {
-        VStack() {
+        VStack(spacing: 0) {
+            headerClockView(solarData: viewModel.solarData!)
             if viewModel.isLoading {
                 ProgressView("Loading...")
             } else if let solarData = viewModel.solarData {
-                VHFBandConditionsView(solarData: solarData)
+                VHFBandConditionsView(solarData: solarData).padding(10)
             } else if let error = viewModel.errorMessage {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
             }
-            if let lastUpdateTime = viewModel.lastRefreshDate {
-                LastUpdateView(lastUpdateTime: lastUpdateTime)
-            }
+            LastUpdateView(lastUpdateTime: viewModel.lastRefreshDate!)
         }
     }
 }
@@ -39,7 +38,6 @@ struct VHFBandConditionsView: View {
     
     var body: some View {
         VStack{
-            headerClockView(solarData: viewModel.solarData!)
             phenomenonGrid
                 .padding(20)
         }

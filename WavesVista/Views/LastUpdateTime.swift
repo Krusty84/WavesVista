@@ -8,14 +8,10 @@
 import SwiftUI
 import Foundation
 
-struct LastUpdateView: View {
-    var lastUpdateTime: Date
-
-    var body: some View {
-        Text("Last update: \(lastUpdateTime, formatter: DateFormatterUtility.shared)")
-            .font(.caption)
-            .foregroundColor(.secondary)
-    }
+func LastUpdateView(lastUpdateTime: Date) -> some View {
+    Text("Last update: \(lastUpdateTime, formatter: DateFormatterUtility.shared)")
+        .font(.caption)
+        .foregroundColor(.secondary)
 }
 
 struct DateFormatterUtility {

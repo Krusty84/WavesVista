@@ -9,13 +9,10 @@ import SwiftUI
 
 struct HFPropagationTabContent: View {
     @EnvironmentObject var viewModel: PropagationModel
-    //
-    let minValue = 60.0
-    let maxValue = 250.0
-    let gradient = Gradient(colors: [.red, .yellow, .orange, .green])
-    //
+
     var body: some View {
-        VStack() {
+        VStack(spacing: 0) {
+            headerClockView(solarData: viewModel.solarData!)
             if viewModel.isLoading {
                 ProgressView("Loading...")
             } else if let solarData = viewModel.solarData {
@@ -24,55 +21,10 @@ struct HFPropagationTabContent: View {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
             }
-            
-            let solarFluxValue = Double(viewModel.solarData?.solarflux ?? "") ?? 0.0
-            Text("Solar Flux") // Add a title for the gauge
-                .font(.footnote) // Customize the font
-                .foregroundColor(.primary)
-            Gauge(value: solarFluxValue, in: minValue...maxValue) {
-            } currentValueLabel: {
-                Text("\(Int(solarFluxValue))")
-                    .font(.footnote)
-                    .foregroundColor(Color.red)
-            } minimumValueLabel: {
-                Text("\(Int(minValue))")
-                    .font(.footnote)
-                    .foregroundColor(Color.red)
-            } maximumValueLabel: {
-                Text("\(Int(maxValue))")
-                    .font(.footnote)
-                    .foregroundColor(Color.green)
-            }
-            .gaugeStyle(AccessoryLinearGaugeStyle())
-            .tint(gradient)
-            .padding(.horizontal, 20)
-            //
-            Gauge(value: solarFluxValue, in: minValue...maxValue) {
-            } currentValueLabel: {
-                Text("\(Int(solarFluxValue))")
-                    .foregroundColor(Color.red)
-                    .font(.footnote)
-            } minimumValueLabel: {
-                Text("\(Int(minValue))")
-                    .foregroundColor(Color.red)
-                    .font(.footnote)
-            } maximumValueLabel: {
-                Text("\(Int(maxValue))")
-                    .foregroundColor(Color.green)
-                    .font(.footnote)
-            }
-            .gaugeStyle(AccessoryLinearGaugeStyle())
-            .tint(gradient)
-            .padding(.horizontal, 20)
-            
-            if let lastUpdateTime = viewModel.lastRefreshDate {
-                LastUpdateView(lastUpdateTime: lastUpdateTime)
-            }            
+            SolarFluxAndKIndexView().padding(.bottom, 5)
+            LastUpdateView(lastUpdateTime: viewModel.lastRefreshDate!)
         }
     }
-        //        .onAppear {
-        //            viewModel.fetchSolarData()
-        //        }
 }
 
 struct HFBandConditionsView: View {
@@ -87,7 +39,6 @@ struct HFBandConditionsView: View {
     
     var body: some View {
         VStack {
-            headerClockView(solarData: viewModel.solarData!)
             hfBandsGrid
                 .padding(20)
         }
@@ -129,7 +80,7 @@ struct HFBandConditionsView: View {
                 
                 // 2) Day column
                 if let dc = dayCondition {
-                    let bandTime = BandTime(bandName: band, time: "day")
+                    let bandTime = HfKey(bandName: band, time: "day")
                     conditionTile(dc, highlight: isDayTime, isSelected: viewModel.trackedBandTimes.contains(bandTime)) {
                         // Toggling user selection
                         toggleSelection(bandTime)
@@ -140,7 +91,7 @@ struct HFBandConditionsView: View {
                 
                 // 3) Night column
                 if let nc = nightCondition {
-                    let bandTime = BandTime(bandName: band, time: "night")
+                    let bandTime = HfKey(bandName: band, time: "night")
                     conditionTile(nc, highlight: !isDayTime, isSelected: viewModel.trackedBandTimes.contains(bandTime)) {
                         // Toggling user selection
                         toggleSelection(bandTime)
@@ -153,7 +104,7 @@ struct HFBandConditionsView: View {
     }
     
     /// Toggles a specific (bandName, time) in the model's trackedBandTimes set
-    private func toggleSelection(_ bandTime: BandTime) {
+    private func toggleSelection(_ bandTime: HfKey) {
         if viewModel.trackedBandTimes.contains(bandTime) {
             viewModel.trackedBandTimes.remove(bandTime)
         } else {
