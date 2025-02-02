@@ -22,50 +22,27 @@ struct SolarWeatherTabContent: View {
                     .foregroundColor(.red)
             }
             if let lastUpdateTime = viewModel.lastRefreshDate {
-                        Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-        }
-//        .onAppear {
-//            viewModel.fetchSolarData()
-//        }
-    }
-    private  let dateFormatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateStyle = .short
-        df.timeStyle = .medium
-        return df
-    }()
-}
-
-struct GeneralSolarData: View {
-    @State private var current = 67.0
-        @State private var minValue = 50.0
-        @State private var maxValue = 170.0
-        let gradient = Gradient(colors: [.green, .yellow, .orange, .red])
-    
-    let solarData: SolarData
-    var body: some View {
-        VStack () {
-            headerView
-            Spacer()
-        }
-        .padding()
-        //.background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
-        .shadow(radius: 5)
-        .frame(maxWidth: 600)
-    }
-    
-    // MARK: - Header
-    private var headerView: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                statView(title: "Forecast generated (GMT)", value: solarData.updated)
-                statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
+                LastUpdateView(lastUpdateTime: lastUpdateTime)
             }
+        }
+    }
+}
+    
+    struct GeneralSolarData: View {
+        @EnvironmentObject var viewModel: PropagationModel
+        let solarData: SolarData
+        var body: some View {
+            VStack () {
+                headerClockView(solarData: viewModel.solarData!)
+                solarWeatherGrid
+                    .padding(20)
+            }
+            .cornerRadius(12)
+            .shadow(radius: 5)
+            .frame(maxWidth: 600)
+        }
         
+        private var solarWeatherGrid:some View {
             Grid(horizontalSpacing: 16, verticalSpacing: 16) {
                 GridRow {
                     statView(title: "Flux", value: solarData.solarflux)
@@ -95,16 +72,4 @@ struct GeneralSolarData: View {
             }
         }
     }
-    
-    private func statView(title: String, value: String) -> some View {
-        VStack {
-            Text(title)
-                .font(.headline)
-            //.foregroundColor(.secondary)
-            Text(value)
-                .font(.caption)
-        }
-        .frame(minWidth: 60)
-    }
 
-}

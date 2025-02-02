@@ -26,52 +26,53 @@ struct HFPropagationTabContent: View {
             }
             
             let solarFluxValue = Double(viewModel.solarData?.solarflux ?? "") ?? 0.0
+            Text("Solar Flux") // Add a title for the gauge
+                .font(.footnote) // Customize the font
+                .foregroundColor(.primary)
             Gauge(value: solarFluxValue, in: minValue...maxValue) {
             } currentValueLabel: {
                 Text("\(Int(solarFluxValue))")
+                    .font(.footnote)
                     .foregroundColor(Color.red)
             } minimumValueLabel: {
                 Text("\(Int(minValue))")
+                    .font(.footnote)
                     .foregroundColor(Color.red)
             } maximumValueLabel: {
                 Text("\(Int(maxValue))")
+                    .font(.footnote)
                     .foregroundColor(Color.green)
             }
             .gaugeStyle(AccessoryLinearGaugeStyle())
             .tint(gradient)
+            .padding(.horizontal, 20)
             //
             Gauge(value: solarFluxValue, in: minValue...maxValue) {
             } currentValueLabel: {
                 Text("\(Int(solarFluxValue))")
                     .foregroundColor(Color.red)
+                    .font(.footnote)
             } minimumValueLabel: {
                 Text("\(Int(minValue))")
                     .foregroundColor(Color.red)
+                    .font(.footnote)
             } maximumValueLabel: {
                 Text("\(Int(maxValue))")
                     .foregroundColor(Color.green)
+                    .font(.footnote)
             }
             .gaugeStyle(AccessoryLinearGaugeStyle())
             .tint(gradient)
-            
+            .padding(.horizontal, 20)
             
             if let lastUpdateTime = viewModel.lastRefreshDate {
-                Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
+                LastUpdateView(lastUpdateTime: lastUpdateTime)
+            }            
         }
+    }
         //        .onAppear {
         //            viewModel.fetchSolarData()
         //        }
-    }
-    private  let dateFormatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateStyle = .short
-        df.timeStyle = .medium
-        return df
-    }()
 }
 
 struct HFBandConditionsView: View {
@@ -86,27 +87,16 @@ struct HFBandConditionsView: View {
     
     var body: some View {
         VStack {
-            headerView
-            bandsGrid
+            headerClockView(solarData: viewModel.solarData!)
+            hfBandsGrid
                 .padding(20)
-            //Spacer()
         }
-        //.padding()
         .cornerRadius(12)
         .shadow(radius: 5)
         .frame(maxWidth: 600)
     }
     
-    private var headerView: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                statView(title: "Forecast generated (GMT)", value: solarData.updated)
-                statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
-            }
-        }
-    }
-    
-    private var bandsGrid: some View {
+    private var hfBandsGrid: some View {
         let groupedByBand = Dictionary(grouping: solarData.calculatedConditions) { $0.bandName }
         let sortedBandNames = groupedByBand.keys.sorted()
         
@@ -250,16 +240,4 @@ struct HFBandConditionsView: View {
         let hour = Calendar.current.component(.hour, from: Date())
         return (hour >= 6 && hour < 18)
     }
-    
-    private func statView(title: String, value: String) -> some View {
-        VStack {
-            Text(title).font(.headline)
-            Text(value).font(.caption)
-        }
-        .frame(minWidth: 60)
-    }
 }
-//
-//#Preview () {
-//    HFPropagationTabContent().frame(width: 500, height: 300)
-//}

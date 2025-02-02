@@ -20,7 +20,7 @@ func colorForCondition(_ condition: String) -> Color {
     }
 }
 
- func statView(title: String, value: String) -> some View {
+func statView(title: String, value: String) -> some View {
     VStack {
         Text(title)
             .font(.headline)

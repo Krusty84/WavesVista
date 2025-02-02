@@ -19,23 +19,11 @@ struct VHFPropagationTabContent: View {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
             }
-            
             if let lastUpdateTime = viewModel.lastRefreshDate {
-                Text("Last update: \(lastUpdateTime, formatter: dateFormatter)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                LastUpdateView(lastUpdateTime: lastUpdateTime)
             }
         }
-        //        .onAppear {
-        //            viewModel.fetchSolarData()
-        //        }
     }
-    private  let dateFormatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateStyle = .short
-        df.timeStyle = .medium
-        return df
-    }()
 }
 
 struct VHFBandConditionsView: View {
@@ -51,7 +39,7 @@ struct VHFBandConditionsView: View {
     
     var body: some View {
         VStack{
-            headerView
+            headerClockView(solarData: viewModel.solarData!)
             phenomenonGrid
                 .padding(20)
         }
@@ -59,17 +47,7 @@ struct VHFBandConditionsView: View {
         .shadow(radius: 5)
         .frame(maxWidth: 600)
     }
-    
-    
-    private var headerView: some View {
-        VStack(spacing: 10)  {
-            HStack(spacing: 10) {
-                statView(title: "Forecast generated (GMT)", value: solarData.updated)
-                statView(title: "Forecast generated (Local)", value: convertToLocalTime(dateString: solarData.updated) ?? "Invalid date")
-            }
-        }
-    }
-    
+
     private var phenomenonGrid:some View {
         LazyVGrid(columns: columns, spacing: 16) {
             // Header row
